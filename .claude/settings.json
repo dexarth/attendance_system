@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan:*)",
+      "Bash(dir \"c:\\\\Users\\\\dexar\\\\OneDrive\\\\Desktop\\\\Freelance File\\\\LARAVEL HERD\\\\attendance_system\\\\resources\\\\js\\\\routes\" /b /s)"
+    ]
+  }
+}

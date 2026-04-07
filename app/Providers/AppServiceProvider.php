@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Laravel\Fortify\Contracts\LogoutResponse;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,7 +16,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(LogoutResponse::class, function () {
+            return new class implements LogoutResponse {
+                public function toResponse($request): \Symfony\Component\HttpFoundation\Response
+                {
+                    return redirect('/login');
+                }
+            };
+        });
     }
 
     /**

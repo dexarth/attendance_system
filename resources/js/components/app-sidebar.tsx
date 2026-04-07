@@ -1,7 +1,6 @@
-import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { LayoutGrid, Users, ClipboardList, Settings } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -14,30 +13,25 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
-import type { NavItem } from '@/types';
+import type { Auth, NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
+const adminNavItems: NavItem[] = [
+    { title: 'Dashboard', href: '/admin/dashboard', icon: LayoutGrid },
+    { title: 'Attendance', href: '/admin/attendance', icon: ClipboardList },
+    { title: 'Users', href: '/admin/users', icon: Users },
+    { title: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
+const userNavItems: NavItem[] = [
+    { title: 'Dashboard', href: '/user/dashboard', icon: LayoutGrid },
+    { title: "Today's Attendance", href: '/user/attendance/today', icon: ClipboardList },
+    { title: 'Attendance History', href: '/user/attendance', icon: ClipboardList },
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage<{ auth: Auth }>().props;
+    const navItems = auth?.user?.role === 'admin' ? adminNavItems : userNavItems;
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -53,11 +47,10 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={navItems} />
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>
