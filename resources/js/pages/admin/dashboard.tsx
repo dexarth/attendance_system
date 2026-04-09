@@ -1,20 +1,55 @@
 import { Head, Link } from '@inertiajs/react';
+import { Users, ShieldCheck, UserCheck, Clock, UserX, CalendarClock, ArrowRight, LayoutDashboard } from 'lucide-react';
 import AdminAttendanceController from '@/actions/App/Http/Controllers/Admin/AttendanceController';
 import AdminDashboardController from '@/actions/App/Http/Controllers/Admin/DashboardController';
 import UserManagementController from '@/actions/App/Http/Controllers/Admin/UserManagementController';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type StatCardProps = {
     label: string;
     value: number;
-    color: string;
+    icon: React.ReactNode;
+    colorClass?: string;
+    description?: string;
 };
 
-function StatCard({ label, value, color }: StatCardProps) {
+function StatCard({ label, value, icon, colorClass = 'text-foreground', description }: StatCardProps) {
     return (
-        <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 dark:border-sidebar-border">
-            <p className="text-sm font-medium text-muted-foreground">{label}</p>
-            <p className={`mt-2 text-4xl font-bold ${color}`}>{value}</p>
-        </div>
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">{label}</CardTitle>
+                <div className={`rounded-md bg-muted p-2 ${colorClass}`}>{icon}</div>
+            </CardHeader>
+            <CardContent>
+                <p className={`text-3xl font-bold ${colorClass}`}>{value}</p>
+                {description && <p className="mt-1 text-xs text-muted-foreground">{description}</p>}
+            </CardContent>
+        </Card>
+    );
+}
+
+type QuickLinkCardProps = {
+    label: string;
+    description: string;
+    href: string;
+    icon: React.ReactNode;
+};
+
+function QuickLinkCard({ label, description, href, icon }: QuickLinkCardProps) {
+    return (
+        <Link href={href} className="block">
+            <Card className="h-full transition-colors hover:bg-accent/50">
+                <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-2">
+                    <div className="rounded-md bg-muted p-2 text-muted-foreground">{icon}</div>
+                    <CardTitle className="text-sm font-semibold">{label}</CardTitle>
+                </CardHeader>
+                <CardContent className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">{description}</p>
+                    <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
+                </CardContent>
+            </Card>
+        </Link>
     );
 }
 
@@ -37,55 +72,102 @@ export default function AdminDashboard({
         <>
             <Head title="Admin Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
+                {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-2xl font-semibold tracking-tight">Admin Dashboard</h2>
                         <p className="text-sm text-muted-foreground">Welcome back, Administrator</p>
                     </div>
-                    <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                    <Badge variant="destructive" className="gap-1.5">
+                        <ShieldCheck className="size-3.5" />
                         Admin
-                    </span>
+                    </Badge>
                 </div>
 
-                {/* Users summary */}
-                <div>
-                    <h3 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wide">Users</h3>
-                    <div className="grid gap-4 md:grid-cols-3">
-                        <StatCard label="Total Users" value={totalUsers} color="" />
-                        <StatCard label="Total Admins" value={totalAdmins} color="" />
-                        <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 dark:border-sidebar-border">
-                            <p className="text-sm font-medium text-muted-foreground">Manage Users</p>
-                            <Link
-                                href={UserManagementController.index.url()}
-                                className="mt-3 inline-flex items-center text-sm font-medium text-primary underline-offset-4 hover:underline"
-                            >
-                                View all users →
-                            </Link>
-                        </div>
+                {/* Users overview */}
+                <section>
+                    <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                        Users Overview
+                    </h3>
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <StatCard
+                            label="Total Users"
+                            value={totalUsers}
+                            icon={<Users className="size-4" />}
+                            description="All registered users"
+                        />
+                        <StatCard
+                            label="Total Admins"
+                            value={totalAdmins}
+                            icon={<ShieldCheck className="size-4" />}
+                            description="Administrator accounts"
+                        />
+                        <QuickLinkCard
+                            label="Manage Users"
+                            description="View and manage all user accounts"
+                            href={UserManagementController.index.url()}
+                            icon={<Users className="size-4" />}
+                        />
                     </div>
-                </div>
+                </section>
 
                 {/* Today's attendance */}
-                <div>
-                    <h3 className="mb-3 text-sm font-medium text-muted-foreground uppercase tracking-wide">Today's Attendance</h3>
-                    <div className="grid gap-4 md:grid-cols-4">
-                        <StatCard label="Present" value={todayPresent} color="text-green-600 dark:text-green-400" />
-                        <StatCard label="Late" value={todayLate} color="text-yellow-600 dark:text-yellow-400" />
-                        <StatCard label="Absent" value={todayAbsent} color="text-red-600 dark:text-red-400" />
-                        <StatCard label="Half Day" value={todayHalfDay} color="text-blue-600 dark:text-blue-400" />
+                <section>
+                    <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                        Today's Attendance
+                    </h3>
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        <StatCard
+                            label="Present"
+                            value={todayPresent}
+                            icon={<UserCheck className="size-4" />}
+                            colorClass="text-green-600 dark:text-green-400"
+                            description="On time today"
+                        />
+                        <StatCard
+                            label="Late"
+                            value={todayLate}
+                            icon={<Clock className="size-4" />}
+                            colorClass="text-yellow-600 dark:text-yellow-400"
+                            description="Arrived late"
+                        />
+                        <StatCard
+                            label="Absent"
+                            value={todayAbsent}
+                            icon={<UserX className="size-4" />}
+                            colorClass="text-red-600 dark:text-red-400"
+                            description="Not checked in"
+                        />
+                        <StatCard
+                            label="Half Day"
+                            value={todayHalfDay}
+                            icon={<CalendarClock className="size-4" />}
+                            colorClass="text-blue-600 dark:text-blue-400"
+                            description="Partial attendance"
+                        />
                     </div>
-                </div>
+                </section>
 
-                {/* Quick links */}
-                <div className="rounded-xl border border-sidebar-border/70 bg-card p-6 dark:border-sidebar-border">
-                    <p className="text-sm font-medium text-muted-foreground">Attendance Records</p>
-                    <Link
-                        href={AdminAttendanceController.index.url()}
-                        className="mt-3 inline-flex items-center text-sm font-medium text-primary underline-offset-4 hover:underline"
-                    >
-                        View all attendance →
-                    </Link>
-                </div>
+                {/* Quick actions */}
+                <section>
+                    <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                        Quick Actions
+                    </h3>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        <QuickLinkCard
+                            label="Attendance Records"
+                            description="Browse and manage all attendance logs"
+                            href={AdminAttendanceController.index.url()}
+                            icon={<LayoutDashboard className="size-4" />}
+                        />
+                        <QuickLinkCard
+                            label="User Management"
+                            description="Add, edit, or deactivate user accounts"
+                            href={UserManagementController.index.url()}
+                            icon={<Users className="size-4" />}
+                        />
+                    </div>
+                </section>
             </div>
         </>
     );
